@@ -64,11 +64,47 @@ impl UtilsApi {
         }
     }
 
-    /// get Champion structure from its name
-    pub fn get_champion(name: String) -> Option<Champion> {
+    /// Retrieve a champion from its name
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    /// ```
+    /// use samira::{models::champion_model::*, utils_api::*};
+    /// 
+    /// let api = UtilsApi::latest("en_US").unwrap_or_default();
+    /// assert_eq!("Aatrox", api.get_champion("Aatrox".to_owned()).unwrap().name);
+    /// assert_eq!("Ahri", api.get_champion("Ahri".to_owned()).unwrap().name);
+    /// assert_eq!("Ahri", api.get_champion("Ahri".to_owned()).unwrap().name);
+    /// assert_eq!("Akali", api.get_champion("Akali".to_owned()).unwrap().name);
+    /// assert_eq!("Akshan", api.get_champion("Akshan".to_owned()).unwrap().name);
+    /// assert_eq!("Alistar", api.get_champion("Alistar".to_owned()).unwrap().name);
+    pub fn get_champion(&self, name: String) -> Option<Champion> {
+        let champion = get_champion(&self.version, &self.language, name);
+        if champion.is_ok() {
+            return Some(champion.unwrap())
+        }
         None
     }
 
+}
+
+fn get_champion(version: &String, language: &String, name: String) -> Result<Champion, ureq::Error> {
+    let request = format!(
+        "{SERVER}/cdn/{version}/data/{language}/championFull.json",
+        SERVER = SERVER,
+        version = version,
+        language = language,
+    );
+    let response: serde_json::Value = ureq::get(&request)
+        .call()?
+        .into_json()?;
+    
+    let champ = response.as_object().expect("not an object")
+        .get("data").expect("no data found").as_object().expect("no champions found")
+        .get(&name).expect("champion not found");
+
+    Ok (serde_json::from_value(champ.clone()).unwrap())
 }
 
 fn get_latest_version() -> Result<String, ureq::Error> {

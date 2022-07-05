@@ -13,8 +13,9 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-serde = "1.0.137"
+[dependencies.serde]
+version = "1.0.137"
+features = ["derive"]
 
 [dependencies.ureq]
 version = "2.4.0"

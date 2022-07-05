@@ -1,14 +1,19 @@
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Default, Debug, PartialEq)]
 pub struct Passive {
     pub name: String,
     pub description: String,
     pub image: Image,
 }
 
+#[derive(Serialize, Deserialize, Default, Debug, PartialEq)]
 pub struct LevelTip {
     pub label: Vec<String>,
     pub effect: Vec<String>,
 }
 
+#[derive(Deserialize, Serialize, Default, Debug, PartialEq)]
 pub struct Spell {
     pub id: String,
     pub name: String,
@@ -16,20 +21,26 @@ pub struct Spell {
     pub tooltip: String,
     pub leveltip: LevelTip,
     pub maxrank: i32,
-    pub cooldown: Vec<i32>,
+    pub cooldown: Vec<f64>,
+    #[serde(alias = "cooldownBurn")]
     pub cooldown_burn: String,
-    pub cost: Vec<i32>,
+    pub cost: Vec<f64>,
+    #[serde(alias = "costBurn")]
     pub cost_burn: String,
-    pub effect: Vec<Vec<i32>>,
-    pub effect_burn: Vec<String>,
+    pub effect: Vec<Option<Vec<i32>>>,
+    #[serde(alias = "effectBurn")]
+    pub effect_burn: Vec<Option<String>>,
+    #[serde(alias = "costType")]
     pub cost_type: String,
     pub maxammo: String,
     pub range: Vec<i64>,
-    pub rangeburn: String,
+    #[serde(alias = "rangeBurn")]
+    pub range_burn: String,
     pub image: Image,
     pub resource: String,
 }
 
+#[derive(Serialize, Deserialize, Default, Debug, PartialEq)]
 pub struct Stats {
     pub hp: f64,
     pub hpperlevel: f64,
@@ -53,6 +64,7 @@ pub struct Stats {
     pub attackspeed: f64,
 }
 
+#[derive(Serialize, Deserialize, Default, Debug, PartialEq)]
 pub struct Info {
     pub attack: i32,
     pub defense: i32,
@@ -60,6 +72,7 @@ pub struct Info {
     pub difficulty: i32,
 }
 
+#[derive(Serialize, Deserialize, Default, Debug, PartialEq)]
 pub struct Skin {
     pub id: String,
     pub num: i32,
@@ -67,6 +80,7 @@ pub struct Skin {
     pub chromas: bool,
 }
 
+#[derive(Serialize, Deserialize, Default, Debug, PartialEq)]
 pub struct Image {
     pub full: String,
     pub sprite: String,
@@ -77,6 +91,7 @@ pub struct Image {
     pub h: i32,
 }
 
+#[derive(Serialize, Deserialize, Default, Debug, PartialEq)]
 pub struct Champion {
     pub id: String,
     pub key: String,
