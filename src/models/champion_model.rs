@@ -27,7 +27,7 @@ pub struct Spell {
     pub cost: Vec<f64>,
     #[serde(alias = "costBurn")]
     pub cost_burn: String,
-    pub effect: Vec<Option<Vec<i32>>>,
+    pub effect: Vec<Option<Vec<f64>>>,
     #[serde(alias = "effectBurn")]
     pub effect_burn: Vec<Option<String>>,
     #[serde(alias = "costType")]

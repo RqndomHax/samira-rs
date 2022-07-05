@@ -73,12 +73,7 @@ impl UtilsApi {
     /// use samira::{models::champion_model::*, utils_api::*};
     /// 
     /// let api = UtilsApi::latest("en_US").unwrap_or_default();
-    /// assert_eq!("Aatrox", api.get_champion("Aatrox".to_owned()).unwrap().name);
-    /// assert_eq!("Ahri", api.get_champion("Ahri".to_owned()).unwrap().name);
-    /// assert_eq!("Ahri", api.get_champion("Ahri".to_owned()).unwrap().name);
-    /// assert_eq!("Akali", api.get_champion("Akali".to_owned()).unwrap().name);
-    /// assert_eq!("Akshan", api.get_champion("Akshan".to_owned()).unwrap().name);
-    /// assert_eq!("Alistar", api.get_champion("Alistar".to_owned()).unwrap().name);
+    /// assert_eq!("Samira", api.get_champion("Samira".to_owned()).unwrap().name);
     pub fn get_champion(&self, name: String) -> Option<Champion> {
         let champion = get_champion(&self.version, &self.language, name);
         if champion.is_ok() {
