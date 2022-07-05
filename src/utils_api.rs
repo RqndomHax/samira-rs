@@ -1,6 +1,7 @@
 use ureq::serde_json::{self, Value};
 
 use crate::models::champion_model::*;
+use crate::models::rune_model::*;
 
 const SERVER: &str = "https://ddragon.leagueoflegends.com";
 
@@ -77,7 +78,7 @@ impl UtilsApi {
     /// let champions = api.get_all_champions();
     /// assert_eq!(champions.iter().find(|&c| c.name == "Samira").is_some(), true);
     /// assert_eq!(champions.iter().find(|&c| c.name == "Akali").is_some(), true);
-    /// assert_eq!(champions.iter().find(|&c| c.name == "RqndomHax").is_some(), false);
+    /// assert_eq!(champions.iter().find(|&c| c.name == "RqndomChampion").is_some(), false);
     /// ```
     pub fn get_all_champions(&self) -> Vec<Champion> {
         let champions = get_all_champions(&self.version, &self.language);
@@ -104,6 +105,50 @@ impl UtilsApi {
         }
         None
     }
+
+    /// Retrieve a rune from its name
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    /// ```
+    /// use samira::{models::rune_model::*, utils_api::*};
+    /// 
+    /// let api = UtilsApi::latest("en_US").unwrap_or_default();
+    /// assert_eq!("Domination", api.get_rune("Domination".to_owned()).unwrap().name);
+    /// assert_eq!("Inspiration", api.get_rune("Inspiration".to_owned()).unwrap().name);
+    pub fn get_rune(&self, name: String) -> Option<Rune> {
+        let rune = get_rune(&self.version, &self.language, name);
+        if rune.is_ok() {
+            return Some(rune.unwrap())
+        }
+        None
+    }
+
+    /// Retrieve all current runes
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use samira::{models::rune_model::*, utils_api::*};
+    /// 
+    /// let api = UtilsApi::new("12.12.1", "fr_FR").unwrap_or_default();
+    /// let runes = api.get_all_runes();
+    /// assert_eq!(runes.iter().find(|&c| c.name == "Domination").is_some(), true);
+    /// assert_eq!(runes.iter().find(|&c| c.name == "Inspiration").is_some(), true);
+    /// assert_eq!(runes.iter().find(|&c| c.id == 8400).is_some(), true);
+    /// assert_eq!(runes.iter().find(|&c| c.name == "RqndomRune").is_some(), false);
+    /// ```
+    pub fn get_all_runes(&self) -> Vec<Rune> {
+        let runes = get_all_runes(&self.version, &self.language);
+        if runes.is_ok() {
+            return runes.unwrap()
+        }
+        Vec::new()
+    }
+
 
 }
 
@@ -147,6 +192,52 @@ fn get_champion(version: &String, language: &String, name: String) -> Result<Cha
 
     Ok (serde_json::from_value(champ.clone()).unwrap())
 }
+
+fn get_all_runes(version: &String, language: &String) -> Result<Vec<Rune>, ureq::Error> {
+    let mut runes = Vec::new();
+    let request = format!(
+        "{SERVER}/cdn/{version}/data/{language}/runesReforged.json",
+        SERVER = SERVER,
+        version = version,
+        language = language,
+    );
+    let response: serde_json::Value = ureq::get(&request)
+        .call()?
+        .into_json()?;
+
+    let rune = response.as_array().expect("not an array");
+
+    for val in rune {
+        runes.push(serde_json::from_value(val.clone()).unwrap());
+    }
+
+    Ok (runes)
+}
+
+fn get_rune(version: &String, language: &String, name: String) -> Result<Rune, ureq::Error> {
+    let request = format!(
+        "{SERVER}/cdn/{version}/data/{language}/runesReforged.json",
+        SERVER = SERVER,
+        version = version,
+        language = language,
+    );
+    let response: serde_json::Value = ureq::get(&request)
+        .call()?
+        .into_json()?;
+
+    let rune = response.as_array().expect("not an array");
+    let mut target = None;
+
+    for val in rune {
+        if val.as_object().expect("not an object")
+            .get("name").expect("name not found").as_str().expect("not a string") == name {
+                target = Some(val);
+            }
+    }
+
+    Ok (serde_json::from_value(target.unwrap().clone()).unwrap())
+}
+
 
 fn get_latest_version() -> Result<String, ureq::Error> {
     let request = format!(
