@@ -19,7 +19,7 @@ pub struct Spell {
     pub name: String,
     pub description: String,
     pub tooltip: String,
-    pub leveltip: LevelTip,
+    pub leveltip: Option<LevelTip>,
     pub maxrank: i32,
     pub cooldown: Vec<f64>,
     #[serde(alias = "cooldownBurn")]
@@ -37,7 +37,7 @@ pub struct Spell {
     #[serde(alias = "rangeBurn")]
     pub range_burn: String,
     pub image: Image,
-    pub resource: String,
+    pub resource: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Default, Debug, PartialEq)]

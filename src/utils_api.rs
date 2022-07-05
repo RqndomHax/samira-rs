@@ -64,6 +64,29 @@ impl UtilsApi {
         }
     }
 
+    /// Retrieve all current champions
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use samira::{models::champion_model::*, utils_api::*};
+    /// 
+    /// let api = UtilsApi::new("12.12.1", "fr_FR").unwrap_or_default();
+    /// let champions = api.get_all_champions();
+    /// assert_eq!(champions.iter().find(|&c| c.name == "Samira").is_some(), true);
+    /// assert_eq!(champions.iter().find(|&c| c.name == "Akali").is_some(), true);
+    /// assert_eq!(champions.iter().find(|&c| c.name == "RqndomHax").is_some(), false);
+    /// ```
+    pub fn get_all_champions(&self) -> Vec<Champion> {
+        let champions = get_all_champions(&self.version, &self.language);
+        if champions.is_ok() {
+            return champions.unwrap()
+        }
+        Vec::new()
+    }
+
     /// Retrieve a champion from its name
     ///
     /// # Examples
@@ -81,6 +104,29 @@ impl UtilsApi {
         }
         None
     }
+
+}
+
+fn get_all_champions(version: &String, language: &String) -> Result<Vec<Champion>, ureq::Error> {
+    let mut champions: Vec<Champion> = Vec::new();
+    let request = format!(
+        "{SERVER}/cdn/{version}/data/{language}/championFull.json",
+        SERVER = SERVER,
+        version = version,
+        language = language,
+    );
+    let response: serde_json::Value = ureq::get(&request)
+        .call()?
+        .into_json()?;
+    
+    let champ = response.as_object().expect("not an object")
+        .get("data").expect("no data found").as_object().expect("no champions found");
+    
+    for val in champ.values() {
+        champions.push(serde_json::from_value(val.clone()).unwrap());
+    }
+
+    Ok(champions)
 
 }
 
