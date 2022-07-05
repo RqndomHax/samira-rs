@@ -5,9 +5,9 @@ authors = ["Paul COMTE <paul.codepro@gmail.com>"]
 repository = "https://github.com/RqndomHax/Samira"
 description = "League of Legends API Library"
 readme = "README.md"
-license = "GNU General Public License v3.0"
+license = "AGPL-3.0-or-later"
 include = [ "src/**", "README.md" ]
-keywords = [ "riot-games", "riot", "api", "league", "league-of-legends", "lol" ]
+keywords = [ "riot-games", "riot", "league", "league-of-legends", "lol" ]
 categories = [ "api-bindings", "web-programming::http-client" ]
 edition = "2021"
 
