@@ -19,7 +19,7 @@ Output:
 TODO
 ```
 
-The [`RiotApi` struct documentation](https://docs.rs/samira/latest/samira/struct.RiotApi.html).
+The [`UtilsApi` struct documentation](https://docs.rs/samira/latest/samira/utils_api/struct.UtilsApi.html).
 
 ## Docs
 
