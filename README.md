@@ -28,7 +28,7 @@ The [`UtilsApi` struct documentation](https://docs.rs/samira/latest/samira/utils
 ## Additional Help
 
 Feel free to [make an issue](https://github.com/RqndomHax/Samira/issues/new)
-if you are have any questions or trouble with Riven. 
+if you have any questions or troubles with Riven. 
 
 <br>
 
