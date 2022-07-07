@@ -58,11 +58,9 @@ impl UtilsApi {
         let version_result = is_version_available(version.to_owned());
         let language_result = is_language_available(language.to_owned());
         if (language_result.is_ok() && language_result.unwrap() == true) && (version_result.is_ok() && version_result.unwrap() == true) {
-            Some(UtilsApi {version: version.to_owned(), language: language.to_owned()})
+            return Some(UtilsApi {version: version.to_owned(), language: language.to_owned()})
         }
-        else {
-            None
-        }
+        None
     }
 
     /// Retrieve all current champions
