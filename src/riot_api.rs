@@ -42,7 +42,7 @@ fn check_token(token: &str) -> Result<bool, ureq::Error> {
         "{server}/lol/status/v4/platform-data",
         server = get_platform_url(&Platform::NA1),
     );
-    let response: serde_json::Value = ureq::get(&request)
+    ureq::get(&request)
         .set("X-Riot-Token", token)
         .call()?
         .into_json()?;
