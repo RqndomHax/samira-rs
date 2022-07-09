@@ -1,5 +1,5 @@
+use crate::{platform::*, region::*};
 use ureq::serde_json;
-use crate::{region::*, platform::*};
 
 #[derive(Debug, PartialEq)]
 pub struct RiotApi {
@@ -9,7 +9,7 @@ pub struct RiotApi {
 impl RiotApi {
     /// Creates a new RiotApi with a token
     /// It checks if the token is valid by retrieving the League of Legends NA1 region status.
-    /// 
+    ///
     /// # Examples
     ///
     /// Basic usage:
@@ -17,7 +17,7 @@ impl RiotApi {
     /// ```
     /// use std::process::exit;
     /// use samira::riot_api::*;
-    /// 
+    ///
     /// let api = RiotApi::new("TOKEN_HERE");
     /// if api.is_none() {
     ///     // We exit the program because the token is invalid
@@ -31,7 +31,7 @@ impl RiotApi {
         if result.is_ok() && result.unwrap() == true {
             return Some(RiotApi {
                 token: token.to_string(),
-            })
+            });
         }
         None
     }

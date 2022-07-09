@@ -1,7 +1,7 @@
 pub struct Metadata {
     pub data_version: String,
     pub match_id: String,
-    pub participants: Vec<String>
+    pub participants: Vec<String>,
 }
 
 pub struct PerkStats {
