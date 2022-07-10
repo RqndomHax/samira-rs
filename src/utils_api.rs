@@ -72,7 +72,7 @@ impl UtilsApi {
         None
     }
 
-    /// Retrieve all current champions
+    /// Retrieve all current champions.
     ///
     /// # Examples
     ///
@@ -95,7 +95,7 @@ impl UtilsApi {
         Vec::new()
     }
 
-    /// Retrieve a champion from its name
+    /// Retrieve a champion from its id.
     ///
     /// # Examples
     ///
@@ -104,16 +104,34 @@ impl UtilsApi {
     /// use samira::{models::champion_model::*, utils_api::*};
     ///
     /// let api = UtilsApi::latest("en_US").unwrap_or_default();
-    /// assert_eq!("Samira", api.get_champion("Samira".to_owned()).unwrap().name);
-    pub fn get_champion(&self, name: String) -> Option<Champion> {
-        let champion = get_champion(&self.version, &self.language, name);
+    /// assert_eq!("360", api.get_champion_by_key("360".to_owned()).unwrap().key);
+    pub fn get_champion_by_key(&self, key: String) -> Option<Champion> {
+        let champion = get_champion_by_key(&self.version, &self.language, key);
         if champion.is_ok() {
             return Some(champion.unwrap());
         }
         None
     }
 
-    /// Retrieve a rune from its name
+    /// Retrieve a champion from its name.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    /// ```
+    /// use samira::{models::champion_model::*, utils_api::*};
+    ///
+    /// let api = UtilsApi::latest("en_US").unwrap_or_default();
+    /// assert_eq!("Samira", api.get_champion_by_name("Samira".to_owned()).unwrap().name);
+    pub fn get_champion_by_name(&self, name: String) -> Option<Champion> {
+        let champion = get_champion_by_name(&self.version, &self.language, name);
+        if champion.is_ok() {
+            return Some(champion.unwrap());
+        }
+        None
+    }
+
+    /// Retrieve a rune by its name
     ///
     /// # Examples
     ///
@@ -182,7 +200,48 @@ fn get_all_champions(version: &String, language: &String) -> Result<Vec<Champion
     Ok(champions)
 }
 
-fn get_champion(
+fn get_champion_by_key(
+    version: &String,
+    language: &String,
+    key: String,
+) -> Result<Champion, ureq::Error> {
+    let request = format!(
+        "{SERVER}/cdn/{version}/data/{language}/championFull.json",
+        SERVER = SERVER,
+        version = version,
+        language = language,
+    );
+    let response: serde_json::Value = ureq::get(&request).call()?.into_json()?;
+
+    let champs = response
+        .as_object()
+        .expect("not an object")
+        .get("data")
+        .expect("no data found")
+        .as_object()
+        .expect("no champions found");
+
+    let mut champ: Option<Champion> = None;
+
+    for (_, value) in champs {
+        if value
+            .as_object()
+            .expect("not an object")
+            .get("key")
+            .expect("no key found")
+            .as_str()
+            .expect("not a string")
+            == key
+        {
+            champ = Some(serde_json::from_value(value.clone()).unwrap());
+            break;
+        }
+    }
+
+    Ok(champ.expect("key not found"))
+}
+
+fn get_champion_by_name(
     version: &String,
     language: &String,
     name: String,
