@@ -15,14 +15,18 @@ impl RiotApi {
     /// Basic usage:
     ///
     /// ```
+    /// use std::env;
     /// use std::process::exit;
     /// use samira::riot_api::*;
     ///
-    /// let api = RiotApi::new("TOKEN_HERE");
-    /// if api.is_none() {
-    ///     // We exit the program because the token is invalid
+    /// let token = env::var("RIOT_API");
+    /// if token.is_err() {
+    ///     // We exit the program because we couldn't find the token
     ///     exit(0);
     /// }
+    /// let token = token.unwrap().to_string();
+    /// let api = RiotApi::new(&token);
+    /// assert_eq!(api.is_some(), true);
     /// let api = api.unwrap();
     /// // We can now use the api methods.
     /// ```
@@ -62,9 +66,18 @@ impl RiotApi {
     /// Basic usage:
     ///
     /// ```
+    /// use std::env;
+    /// use std::process::exit;
+    ///
+    /// let token = env::var("RIOT_API");
+    /// if token.is_err() {
+    ///     // We exit the program because we couldn't find the token
+    ///     exit(0);
+    /// }
+    /// let token = token.unwrap().to_string();
     /// use samira::{riot_api::*, platform::*};
     ///
-    /// let api = RiotApi::new("RGAPI-db744840-2107-4a1c-931d-3a1e95b7ad8b").unwrap();
+    /// let api = RiotApi::new(&token).unwrap();
     /// let puuid = "Y22N0dvmtG6NsF5GTpPJ4yhxI2t3zMvP5solMwWSqj1Ld-YAijBqMG5bDP9xYZ9EgVkyxiyifsMC_Q";
     /// let summoner = api.get_summoner_by_puuid(&Platform::EUW1, &puuid);
     /// assert_eq!(summoner.unwrap().puuid, puuid);
