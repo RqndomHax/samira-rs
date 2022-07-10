@@ -1,7 +1,6 @@
 use crate::{
     models::{champion_info_model::*, summoner_model::*},
     platform::*,
-    region::*,
 };
 use ureq::serde_json;
 

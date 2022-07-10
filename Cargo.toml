@@ -1,6 +1,6 @@
 [package]
 name = "samira"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Paul COMTE <paul.codepro@gmail.com>"]
 repository = "https://github.com/RqndomHax/Samira"
 description = "League of Legends API Library"
