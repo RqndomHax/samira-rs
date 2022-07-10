@@ -19,8 +19,9 @@ Output:
 TODO
 ```
 
-The [`RiotApi` struct documentation](https://docs.rs/samira/latest/samira/riot_api/struct.RiotApi.html).
-The [`UtilsApi` struct documentation](https://docs.rs/samira/latest/samira/utils_api/struct.UtilsApi.html).
+* The [`RiotApi` struct documentation](https://docs.rs/samira/latest/samira/riot_api/struct.RiotApi.html).
+
+* The [`UtilsApi` struct documentation](https://docs.rs/samira/latest/samira/utils_api/struct.UtilsApi.html).
 
 ## Docs
 
