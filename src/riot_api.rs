@@ -125,6 +125,114 @@ impl RiotApi {
         }
         None
     }
+
+    /// Retrieve a summoner by its account id.
+    /// If the summoner does not exist it returns None.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use std::env;
+    /// use std::process::exit;
+    ///
+    /// let token = env::var("RIOT_API");
+    /// if token.is_err() {
+    ///     // We exit the program because we couldn't find the token
+    ///     exit(0);
+    /// }
+    /// let token = token.unwrap().to_string();
+    /// use samira::{riot_api::*, platform::*};
+    ///
+    /// let api = RiotApi::new(&token).unwrap();
+    /// let account_id = "4eIfHlTzukZx9s6rxIBUN1dU4kVwYFq1ywN7DbKqzwF9lJg";
+    /// let summoner = api.get_summoner_by_account(&Platform::EUW1, &account_id);
+    /// assert_eq!(summoner.unwrap().account_id, account_id);
+    /// ```
+    pub fn get_summoner_by_account(
+        &self,
+        platform: &Platform,
+        encrypted_account_id: &str,
+    ) -> Option<Summoner> {
+        let summoner_result = get_summoner_by_account(&self.token, platform, encrypted_account_id);
+        if summoner_result.is_ok() {
+            return Some(summoner_result.unwrap());
+        }
+        None
+    }
+
+    /// Retrieve a summoner by its id.
+    /// If the summoner does not exist it returns None.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use std::env;
+    /// use std::process::exit;
+    ///
+    /// let token = env::var("RIOT_API");
+    /// if token.is_err() {
+    ///     // We exit the program because we couldn't find the token
+    ///     exit(0);
+    /// }
+    /// let token = token.unwrap().to_string();
+    /// use samira::{riot_api::*, platform::*};
+    ///
+    /// let api = RiotApi::new(&token).unwrap();
+    /// let id = "FoodwqxL8Ull26gVDjyYemG4-Jz5eh7pI0crg6fkkr7xJC0";
+    /// let summoner = api.get_summoner(&Platform::EUW1, &id);
+    /// assert_eq!(summoner.unwrap().id, id);
+    /// ```
+    pub fn get_summoner(
+        &self,
+        platform: &Platform,
+        encrypted_summoner_id: &str,
+    ) -> Option<Summoner> {
+        let summoner_result = get_summoner(&self.token, platform, encrypted_summoner_id);
+        if summoner_result.is_ok() {
+            return Some(summoner_result.unwrap());
+        }
+        None
+    }
+}
+
+fn get_summoner(
+    token: &str,
+    platform: &Platform,
+    encrypted_summoner_id: &str,
+) -> Result<Summoner, ureq::Error> {
+    let request = format!(
+        "{server}/lol/summoner/v4/summoners/{encrypted_summoner_id}",
+        server = get_platform_url(platform),
+        encrypted_summoner_id = encrypted_summoner_id
+    );
+    let response: serde_json::Value = ureq::get(&request)
+        .set("X-Riot-Token", token)
+        .call()?
+        .into_json()?;
+
+    Ok(serde_json::from_value(response).unwrap())
+}
+
+fn get_summoner_by_account(
+    token: &str,
+    platform: &Platform,
+    encrypted_account_id: &str,
+) -> Result<Summoner, ureq::Error> {
+    let request = format!(
+        "{server}/lol/summoner/v4/summoners/by-account/{encrypted_account_id}",
+        server = get_platform_url(platform),
+        encrypted_account_id = encrypted_account_id
+    );
+    let response: serde_json::Value = ureq::get(&request)
+        .set("X-Riot-Token", token)
+        .call()?
+        .into_json()?;
+
+    Ok(serde_json::from_value(response).unwrap())
 }
 
 fn get_summoner_by_name(
