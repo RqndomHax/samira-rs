@@ -1,4 +1,8 @@
-use crate::{models::summoner_model::*, platform::*, region::*};
+use crate::{
+    models::{champion_info_model::*, summoner_model::*},
+    platform::*,
+    region::*,
+};
 use ureq::serde_json;
 
 #[derive(Debug, PartialEq)]
@@ -22,7 +26,7 @@ impl RiotApi {
     /// let token = env::var("RIOT_API");
     /// if token.is_err() {
     ///     // We exit the program because we couldn't find the token
-    ///     exit(0);
+    ///     exit(1);
     /// }
     /// let token = token.unwrap().to_string();
     /// let api = RiotApi::new(&token);
@@ -36,8 +40,9 @@ impl RiotApi {
             return Some(RiotApi {
                 token: token.to_string(),
             });
+        } else {
+            None
         }
-        None
     }
 
     /// Creates a new RiotApi with a token.
@@ -58,6 +63,37 @@ impl RiotApi {
         };
     }
 
+    /// Retrieve champion rotation.
+    /// If the summoner does not exist it returns None.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use std::env;
+    /// use std::process::exit;
+    ///
+    /// let token = env::var("RIOT_API");
+    /// if token.is_err() {
+    ///     // We exit the program because we couldn't find the token
+    ///     exit(1);
+    /// }
+    /// let token = token.unwrap().to_string();
+    /// use samira::{riot_api::*, platform::*};
+    ///
+    /// let api = RiotApi::new(&token).unwrap();
+    /// let champion_rotations = api.get_champion_rotations(&Platform::EUW1);
+    /// assert_eq!(champion_rotations.unwrap().max_new_player_level, 10);
+    /// ```
+    pub fn get_champion_rotations(&self, platform: &Platform) -> Option<ChampionInfo> {
+        let champion_rotations_result = get_champion_rotations(&self.token, platform);
+        if champion_rotations_result.is_ok() {
+            return Some(champion_rotations_result.unwrap());
+        }
+        None
+    }
+
     /// Retrieve a summoner by its puuid.
     /// If the summoner does not exist it returns None.
     ///
@@ -72,7 +108,7 @@ impl RiotApi {
     /// let token = env::var("RIOT_API");
     /// if token.is_err() {
     ///     // We exit the program because we couldn't find the token
-    ///     exit(0);
+    ///     exit(1);
     /// }
     /// let token = token.unwrap().to_string();
     /// use samira::{riot_api::*, platform::*};
@@ -104,7 +140,7 @@ impl RiotApi {
     /// let token = env::var("RIOT_API");
     /// if token.is_err() {
     ///     // We exit the program because we couldn't find the token
-    ///     exit(0);
+    ///     exit(1);
     /// }
     /// let token = token.unwrap().to_string();
     /// use samira::{riot_api::*, platform::*};
@@ -140,7 +176,7 @@ impl RiotApi {
     /// let token = env::var("RIOT_API");
     /// if token.is_err() {
     ///     // We exit the program because we couldn't find the token
-    ///     exit(0);
+    ///     exit(1);
     /// }
     /// let token = token.unwrap().to_string();
     /// use samira::{riot_api::*, platform::*};
@@ -176,7 +212,7 @@ impl RiotApi {
     /// let token = env::var("RIOT_API");
     /// if token.is_err() {
     ///     // We exit the program because we couldn't find the token
-    ///     exit(0);
+    ///     exit(1);
     /// }
     /// let token = token.unwrap().to_string();
     /// use samira::{riot_api::*, platform::*};
@@ -197,6 +233,19 @@ impl RiotApi {
         }
         None
     }
+}
+
+fn get_champion_rotations(token: &str, platform: &Platform) -> Result<ChampionInfo, ureq::Error> {
+    let request = format!(
+        "{server}/lol/platform/v3/champion-rotations",
+        server = get_platform_url(platform)
+    );
+    let response: serde_json::Value = ureq::get(&request)
+        .set("X-Riot-Token", token)
+        .call()?
+        .into_json()?;
+
+    Ok(serde_json::from_value(response).unwrap())
 }
 
 fn get_summoner(
@@ -276,9 +325,7 @@ fn check_token(token: &str) -> Result<bool, ureq::Error> {
         "{server}/lol/status/v4/platform-data",
         server = get_platform_url(&Platform::NA1),
     );
-    ureq::get(&request)
-        .set("X-Riot-Token", token)
-        .call()?
-        .into_json()?;
+    ureq::get(&request).set("X-Riot-Token", token).call()?;
+
     Ok(true)
 }
