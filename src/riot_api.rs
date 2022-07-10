@@ -89,6 +89,60 @@ impl RiotApi {
         }
         None
     }
+
+    /// Retrieve a summoner by its name.
+    /// If the summoner does not exist it returns None.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use std::env;
+    /// use std::process::exit;
+    ///
+    /// let token = env::var("RIOT_API");
+    /// if token.is_err() {
+    ///     // We exit the program because we couldn't find the token
+    ///     exit(0);
+    /// }
+    /// let token = token.unwrap().to_string();
+    /// use samira::{riot_api::*, platform::*};
+    ///
+    /// let api = RiotApi::new(&token).unwrap();
+    /// let name = "RqndomHax";
+    /// let summoner = api.get_summoner_by_name(&Platform::EUW1, &name);
+    /// assert_eq!(summoner.unwrap().name, name);
+    /// ```
+    pub fn get_summoner_by_name(
+        &self,
+        platform: &Platform,
+        summoner_name: &str,
+    ) -> Option<Summoner> {
+        let summoner_result = get_summoner_by_name(&self.token, platform, summoner_name);
+        if summoner_result.is_ok() {
+            return Some(summoner_result.unwrap());
+        }
+        None
+    }
+}
+
+fn get_summoner_by_name(
+    token: &str,
+    platform: &Platform,
+    summoner_name: &str,
+) -> Result<Summoner, ureq::Error> {
+    let request = format!(
+        "{server}/lol/summoner/v4/summoners/by-name/{summoner_name}",
+        server = get_platform_url(platform),
+        summoner_name = summoner_name
+    );
+    let response: serde_json::Value = ureq::get(&request)
+        .set("X-Riot-Token", token)
+        .call()?
+        .into_json()?;
+
+    Ok(serde_json::from_value(response).unwrap())
 }
 
 fn get_summoner_by_puuid(
