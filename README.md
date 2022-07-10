@@ -19,11 +19,12 @@ Output:
 TODO
 ```
 
+The [`RiotApi` struct documentation](https://docs.rs/samira/latest/samira/riot_api/struct.RiotApi.html).
 The [`UtilsApi` struct documentation](https://docs.rs/samira/latest/samira/utils_api/struct.UtilsApi.html).
 
 ## Docs
 
-[On docs.rs](https://docs.rs/samira/).
+* **[Samira Rust API Docs](https://docs.rs/samira/):** Samira's Rust API docs, which are automatically generated from the doc comments in this repository.
 
 ## Additional Help
 
