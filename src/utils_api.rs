@@ -14,7 +14,7 @@ pub struct UtilsApi {
 impl Default for UtilsApi {
     fn default() -> UtilsApi {
         UtilsApi {
-            version: "12.12.1".to_string(),
+            version: "12.14.1".to_string(),
             language: "en_US".to_string(),
         }
     }
@@ -26,12 +26,12 @@ impl UtilsApi {
     /// # Examples
     ///
     /// Basic usage:
-    /// (current latest version is 12.12.1 (07/05/2022))
+    /// (current latest version is 12.14.1 (08/04/2022))
     /// ```
     /// use samira::utils_api::*;
     ///
     /// let api = UtilsApi::latest("en_US").unwrap_or_default();
-    /// assert_eq!(api, UtilsApi{version: "12.12.1".to_owned(), language: "en_US".to_owned()});
+    /// assert_eq!(api, UtilsApi{version: "12.14.1".to_owned(), language: "en_US".to_owned()});
     /// ```
     pub fn latest(language: &str) -> Option<UtilsApi> {
         let language_result = is_language_available(language.to_owned());

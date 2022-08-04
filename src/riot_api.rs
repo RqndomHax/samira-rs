@@ -1,4 +1,5 @@
 use crate::{
+    filters::summoner_filter::*,
     models::{champion_info_model::*, summoner_model::*},
     platform::*,
 };
@@ -93,7 +94,7 @@ impl RiotApi {
         None
     }
 
-    /// Retrieve a summoner by its puuid.
+    /// Retrieve a summoner by a given filter.
     /// If the summoner does not exist it returns None.
     ///
     /// # Examples
@@ -110,125 +111,75 @@ impl RiotApi {
     ///     exit(1);
     /// }
     /// let token = token.unwrap().to_string();
-    /// use samira::{riot_api::*, platform::*};
-    ///
-    /// let api = RiotApi::new(&token).unwrap();
-    /// let puuid = "Y22N0dvmtG6NsF5GTpPJ4yhxI2t3zMvP5solMwWSqj1Ld-YAijBqMG5bDP9xYZ9EgVkyxiyifsMC_Q";
-    /// let summoner = api.get_summoner_by_puuid(&Platform::EUW1, &puuid);
-    /// assert_eq!(summoner.unwrap().puuid, puuid);
-    /// ```
-    pub fn get_summoner_by_puuid(&self, platform: &Platform, puuid: &str) -> Option<Summoner> {
-        let summoner_result = get_summoner_by_puuid(&self.token, platform, puuid);
-        if summoner_result.is_ok() {
-            return Some(summoner_result.unwrap());
-        }
-        None
-    }
-
-    /// Retrieve a summoner by its name.
-    /// If the summoner does not exist it returns None.
-    ///
-    /// # Examples
-    ///
-    /// Basic usage:
-    ///
-    /// ```
-    /// use std::env;
-    /// use std::process::exit;
-    ///
-    /// let token = env::var("RIOT_API");
-    /// if token.is_err() {
-    ///     // We exit the program because we couldn't find the token
-    ///     exit(1);
-    /// }
-    /// let token = token.unwrap().to_string();
-    /// use samira::{riot_api::*, platform::*};
+    /// use samira::{riot_api::*, platform::*, filters::summoner_filter::*};
     ///
     /// let api = RiotApi::new(&token).unwrap();
     /// let name = "RqndomHax";
-    /// let summoner = api.get_summoner_by_name(&Platform::EUW1, &name);
+    /// let summoner = api.get_summoner(&Platform::EUW1, SummonerFilter {name: Some(name.to_string()), ..Default::default()});
     /// assert_eq!(summoner.unwrap().name, name);
-    /// ```
-    pub fn get_summoner_by_name(
-        &self,
-        platform: &Platform,
-        summoner_name: &str,
-    ) -> Option<Summoner> {
-        let summoner_result = get_summoner_by_name(&self.token, platform, summoner_name);
-        if summoner_result.is_ok() {
-            return Some(summoner_result.unwrap());
-        }
-        None
-    }
-
-    /// Retrieve a summoner by its account id.
-    /// If the summoner does not exist it returns None.
-    ///
-    /// # Examples
-    ///
-    /// Basic usage:
-    ///
-    /// ```
-    /// use std::env;
-    /// use std::process::exit;
-    ///
-    /// let token = env::var("RIOT_API");
-    /// if token.is_err() {
-    ///     // We exit the program because we couldn't find the token
-    ///     exit(1);
-    /// }
-    /// let token = token.unwrap().to_string();
-    /// use samira::{riot_api::*, platform::*};
-    ///
-    /// let api = RiotApi::new(&token).unwrap();
-    /// let account_id = "4eIfHlTzukZx9s6rxIBUN1dU4kVwYFq1ywN7DbKqzwF9lJg";
-    /// let summoner = api.get_summoner_by_account(&Platform::EUW1, &account_id);
-    /// assert_eq!(summoner.unwrap().account_id, account_id);
-    /// ```
-    pub fn get_summoner_by_account(
-        &self,
-        platform: &Platform,
-        encrypted_account_id: &str,
-    ) -> Option<Summoner> {
-        let summoner_result = get_summoner_by_account(&self.token, platform, encrypted_account_id);
-        if summoner_result.is_ok() {
-            return Some(summoner_result.unwrap());
-        }
-        None
-    }
-
-    /// Retrieve a summoner by its id.
-    /// If the summoner does not exist it returns None.
-    ///
-    /// # Examples
-    ///
-    /// Basic usage:
-    ///
-    /// ```
-    /// use std::env;
-    /// use std::process::exit;
-    ///
-    /// let token = env::var("RIOT_API");
-    /// if token.is_err() {
-    ///     // We exit the program because we couldn't find the token
-    ///     exit(1);
-    /// }
-    /// let token = token.unwrap().to_string();
-    /// use samira::{riot_api::*, platform::*};
-    ///
-    /// let api = RiotApi::new(&token).unwrap();
-    /// let id = "FoodwqxL8Ull26gVDjyYemG4-Jz5eh7pI0crg6fkkr7xJC0";
-    /// let summoner = api.get_summoner(&Platform::EUW1, &id);
-    /// assert_eq!(summoner.unwrap().id, id);
+    /// // We can add multiple filters so we can still find a profile with incorect infos.
+    /// let puuid = "Y22N0dvmtG6NsF5GTpPJ4yhxI2t3zMvP5solMwWSqj1Ld-YAijBqMG5bDP9xYZ9EgVkyxiyifsMC_Q";
+    /// let summoner = api.get_summoner(&Platform::EUW1, SummonerFilter {name: Some("_RandomHaxx_".to_string()), puuid: Some(puuid.to_string()), ..Default::default()});
+    /// let summoner = summoner.unwrap();
+    /// assert_eq!(summoner.name, name); // We are still finding RqndomHax, thanks to the puuid
+    /// assert_eq!(summoner.puuid, puuid); // The puuid is the correct filter
     /// ```
     pub fn get_summoner(
         &self,
         platform: &Platform,
-        encrypted_summoner_id: &str,
+        mut summoner: SummonerFilter,
     ) -> Option<Summoner> {
-        let summoner_result = get_summoner(&self.token, platform, encrypted_summoner_id);
-        if summoner_result.is_ok() {
-            return Some(summoner_result.unwrap());
+        if summoner.account_id.is_some() {
+            return match get_summoner_by_account(
+                &self.token,
+                platform,
+                summoner.account_id.as_ref().unwrap().as_str(),
+            ) {
+                Ok(result) => Some(result),
+                Err(_) => {
+                    summoner.account_id = None;
+                    self.get_summoner(platform, summoner)
+                }
+            };
+        }
+        if summoner.name.is_some() {
+            return match get_summoner_by_name(
+                &self.token,
+                platform,
+                summoner.name.as_ref().unwrap().as_str(),
+            ) {
+                Ok(result) => Some(result),
+                Err(_) => {
+                    summoner.name = None;
+                    self.get_summoner(platform, summoner)
+                }
+            };
+        }
+        if summoner.id.is_some() {
+            return match get_summoner(
+                &self.token,
+                platform,
+                summoner.id.as_ref().unwrap().as_str(),
+            ) {
+                Ok(result) => Some(result),
+                Err(_) => {
+                    summoner.id = None;
+                    self.get_summoner(platform, summoner)
+                }
+            };
+        }
+        if summoner.puuid.is_some() {
+            return match get_summoner_by_puuid(
+                &self.token,
+                platform,
+                summoner.puuid.as_ref().unwrap().as_str(),
+            ) {
+                Ok(result) => Some(result),
+                Err(_) => {
+                    summoner.puuid = None;
+                    self.get_summoner(platform, summoner)
+                }
+            };
         }
         None
     }
